@@ -1,0 +1,26 @@
+<div class="register-container">
+  <h2>Crea un account Parco Sila</h2>
+
+  <form (ngSubmit)="onSubmit()">
+
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" [(ngModel)]="nuovoUtente.username" required placeholder="Scegli un username">
+    </div>
+
+    <div class="form-group">
+      <label for="email">Indirizzo Email</label>
+      <input type="email" id="email" name="email" [(ngModel)]="nuovoUtente.email" required placeholder="inserisci la tua email">
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" [(ngModel)]="nuovoUtente.password" required placeholder="Scegli una password sicura">
+    </div>
+
+    <button type="submit">Registrati</button>
+  </form>
+
+  <p *ngIf="successMessage" style="color: green; font-weight: bold;">{{ successMessage }}</p>
+  <p *ngIf="errorMessage" style="color: red; font-weight: bold;">{{ errorMessage }}</p>
+</div>
