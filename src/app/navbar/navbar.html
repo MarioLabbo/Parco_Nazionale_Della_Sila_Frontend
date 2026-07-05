@@ -1,0 +1,24 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <strong>Parco Nazionale della Sila</strong>
+  </div>
+
+  <ul class="navbar-links">
+    <li *ngIf="isLoggedIn()">
+      <a routerLink="/">Home</a>
+    </li>
+    <li *ngIf="isLoggedIn()">
+      <span class="user-badge">Ruolo: {{ getRuolo() }}</span>
+    </li>
+    <li *ngIf="isLoggedIn()">
+      <button (click)="logout()" class="btn-logout">Logout</button>
+    </li>
+
+    <li *ngIf="!isLoggedIn()">
+      <a routerLink="/login">Accedi</a>
+    </li>
+    <li *ngIf="!isLoggedIn()">
+      <a routerLink="/register">Registrati</a>
+    </li>
+  </ul>
+</nav>

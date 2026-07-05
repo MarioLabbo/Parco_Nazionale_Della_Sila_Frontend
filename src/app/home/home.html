@@ -1,1 +1,56 @@
-<p>home works!</p>
+<div class="home-container">
+
+  <header class="home-hero">
+    <h1>Benvenuto nel Parco Nazionale della Sila</h1>
+    <p>Esplora la biodiversità e i sentieri mozzafiato dell'altopiano calabrese.</p>
+  </header>
+
+  <div class="filter-bar">
+    <button (click)="impostaSezione('tutto')" [class.active]="sezioneAttiva === 'tutto'">Home</button>
+    <button (click)="impostaSezione('fauna')" [class.active]="sezioneAttiva === 'fauna'">Fauna</button>
+    <button (click)="impostaSezione('flora')" [class.active]="sezioneAttiva === 'flora'">Flora</button>
+    <button (click)="impostaSezione('escursioni')" [class.active]="sezioneAttiva === 'escursioni'">Escursioni</button>
+  </div>
+
+  <section *ngIf="sezioneAttiva === 'tutto' || sezioneAttiva === 'fauna'" class="data-section">
+    <h2>La Fauna Protetta</h2>
+    <div class="cards-grid">
+      <div class="card" *ngFor="let animale of faunaList">
+        <div class="card-content">
+          <h3>{{ animale.nome }}</h3>
+          <p>{{ animale.descrizione }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="sezioneAttiva === 'tutto' || sezioneAttiva === 'flora'" class="data-section">
+    <h2>La Flora e i Boschi</h2>
+    <div class="cards-grid">
+      <div class="card" *ngFor="let pianta of floraList">
+        <div class="card-content">
+          <h3>{{ pianta.nome }}</h3>
+          <p>{{ pianta.descrizione }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="sezioneAttiva === 'tutto' || sezioneAttiva === 'escursioni'" class="data-section">
+    <h2>Itinerari ed Escursioni</h2>
+    <div class="cards-grid">
+      <div class="card excursion-card" *ngFor="let esc of escursioniList">
+        <div class="card-content">
+          <h3>{{ esc.titolo }}</h3>
+          <div class="excursion-meta">
+            <span class="badge">Difficoltà: {{ esc.difficolta }}</span>
+            <span class="badge">Durata: {{ esc.durata }}</span>
+          </div>
+          <p>{{ esc.descrizione }}</p>
+          <button class="btn-dettagli">Vedi Percorso</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <pre>{{ escursioniList | json }}</pre>
+</div>
