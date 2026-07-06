@@ -10,25 +10,28 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
 
-  credenziali = {
-    username: '',
-    password: ''
-  };
-
-  errorMessage = '';
+  username = '';
+  password = '';
+  ricordami = false;
+  erroreLogin = '';
 
   constructor(private authService: AuthService, private router: Router) {}
 
   // Metodo per verificare il successo del Login
-  onSubmit() {
-    this.authService.login(this.credenziali).subscribe({
+  onLogin() {
+    const credenziali = {
+      username: this.username,
+      password: this.password
+    };
+
+    this.authService.login(credenziali).subscribe({
       next: (response: any) => {
         this.authService.salvaToken(response.token, response.ruolo);
         console.log('Login effettuato con successo! Ruolo:', response.ruolo);
         this.router.navigate(['/']);
       },
       error: (err: any) => {
-        this.errorMessage = 'Username o password errati. Riprova.';
+        this.erroreLogin = 'Username o password errati. Riprova.';
         console.error('Errore durante il login:', err);
       }
     });

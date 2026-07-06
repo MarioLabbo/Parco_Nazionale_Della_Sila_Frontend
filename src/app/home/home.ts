@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ParcoService } from '../parco';
+
+// Comunica a TypeScript che "paypal" è caricato globalmente dall'index.html
+declare var paypal: any;
 
 @Component({
   selector: 'app-home',
@@ -15,33 +18,40 @@ export class HomeComponent implements OnInit {
   faunaList: any[] = [];
   floraList: any[] = [];
   escursioniList: any[] = [];
+  escursioneInPagamentoId: number | null = null;
+  prenotazioneCorrenteId!: number;
 
-  constructor(private parcoService: ParcoService) { }
+  // Variabili per il form di creazione escursione
+  mostraModaleCreaEscursione = false;
+  nuovoTitolo = '';
+  nuovaDescrizione = '';
+  nuovaDifficolta = 'BASSA';
+  nuoviPostiTotali = 10;
+  nuovaDataOrario = '';
+  erroreCreazione = '';
+
+  // Variabili per il dettaglio di Fauna/Flora
+  elementoSelezionato: any = null;
+  tipoElementoSelezionato: 'fauna' | 'flora' | null = null;
+
+  constructor(private parcoService: ParcoService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.caricaDatiDalDatabase();
   }
 
   caricaDatiDalDatabase(): void {
-    // Scarica la Fauna
+    // Scarica Fauna
     this.parcoService.getFauna().subscribe({
-      next: (dati) => {
-        this.faunaList = dati;
-        console.log('Fauna caricata:', dati);
-      },
+      next: (dati) => this.faunaList = dati,
       error: (err) => console.error('Errore nel caricamento fauna:', err)
     });
-
-    // Scarica la Flora
+    // Scarica Flora
     this.parcoService.getFlora().subscribe({
-      next: (dati) => {
-        this.floraList = dati;
-        console.log('Flora caricata:', dati);
-      },
+      next: (dati) => this.floraList = dati,
       error: (err) => console.error('Errore nel caricamento flora:', err)
     });
-
-    // Scarica le Escursioni
+    // Scarica Escursioni
     this.parcoService.getEscursioni().subscribe({
       next: (dati) => {
         this.escursioniList = dati;
@@ -55,7 +65,7 @@ export class HomeComponent implements OnInit {
     this.sezioneAttiva = sezione;
   }
 
-  // Metodo per leggere il Token
+  // Estrae il token
   getDatiUtenteDalToken(): any {
     const token = localStorage.getItem('jwt_token');
     if (token) {
@@ -71,27 +81,174 @@ export class HomeComponent implements OnInit {
     return null;
   }
 
-  // Metodo per le prenotazioni
-  prenota(escursioneId: number) {
-    const datiUtente = this.getDatiUtenteDalToken();
-    console.log("Contenuto del Token JWT:", datiUtente);
+  // Prenota le escursioni
+  // Metodo che esegue la prenotazione
+    prenota(escursioneId: number, partecipantiStr: string) {
+      const datiUtente = this.getDatiUtenteDalToken();
+      if (!datiUtente) {
+        alert('Errore: Devi fare il login per prenotare!');
+        return;
+      }
 
-    if (!datiUtente) {
-      alert('Errore: Devi fare il login per prenotare!');
-      return;
+      const numeroPartecipanti = parseInt(partecipantiStr, 10);
+      const turistaId = datiUtente.id || 2; // Usa l'id dell'utente loggato, con fallback a 2
+
+      this.parcoService.prenotaEscursione(escursioneId, turistaId, numeroPartecipanti).subscribe({
+        next: (rispostaJava) => {
+          console.log("Prenotazione salvata in IN_ATTESA:", rispostaJava);
+
+          this.prenotazioneCorrenteId = rispostaJava.id;
+          this.escursioneInPagamentoId = escursioneId;
+          this.cdr.detectChanges(); // Forza il refresh del DOM per rendere visibile il container
+
+          // Garantisce che Angular aggiorni la classe .active sul DOM prima del rendering di PayPal
+          setTimeout(() => {
+            this.inizializzaPaypal(rispostaJava.prezzoUnico, escursioneId);
+          }, 0);
+        },
+        error: (errore) => {
+          console.error('Errore durante la prenotazione:', errore);
+          alert(errore.error?.message || 'Errore durante la creazione della prenotazione.');
+        }
+      });
     }
 
-    // L'ID del turista preso dal token
-    const turistaId = 2;
-    const numeroPartecipanti = 1;
+    // Gestisce l'interfaccia protetta e il popup di PayPal
+    inizializzaPaypal(prezzoTotale: number, escursioneId: number): void {
+      const selectorId = '#paypal-button-container';
 
-    this.parcoService.prenotaEscursione(escursioneId, turistaId, numeroPartecipanti).subscribe({
-      next: (risposta) => {
-        alert('Prenotazione andata a buon fine!');
-      },
-      error: (errore) => {
-        console.error('Errore:', errore);
+      const container = document.getElementById('paypal-button-container');
+      if (!container) {
+        console.error("ERRORE CRITICO: Il container PayPal non esiste ancora nel DOM!");
+        return;
       }
-    });
-  }
+
+      container.innerHTML = '';
+
+      paypal.Buttons({
+        createOrder: (data: any, actions: any) => {
+          return actions.order.create({
+            purchase_units: [{
+              amount: {
+                currency_code: 'EUR',
+                value: prezzoTotale.toString()
+              },
+              custom_id: this.prenotazioneCorrenteId.toString()
+            }]
+          });
+        },
+        onApprove: (data: any, actions: any) => {
+          return actions.order.capture().then((details: any) => {
+            const transazioneId = details.purchase_units?.[0]?.payments?.captures?.[0]?.id || data.orderID || 'SANDBOX';
+            this.parcoService.confermaPagamento(this.prenotazioneCorrenteId, transazioneId).subscribe({
+              next: () => {
+                alert('Pagamento completato e registrato con successo! Ti è stata inviata l\'email di conferma.');
+                this.chiudiModalePagamento();
+                this.caricaDatiDalDatabase();
+              },
+              error: (err) => {
+                console.error('Errore conferma pagamento backend:', err);
+                alert('Pagamento autorizzato PayPal, ma si è verificato un errore nel salvataggio sul server.');
+                this.chiudiModalePagamento();
+                this.caricaDatiDalDatabase();
+              }
+            });
+          });
+        },
+        onError: (err: any) => {
+          console.error('Errore durante il checkout PayPal:', err);
+          alert('Il pagamento è stato annullato o si è verificato un problema tecnico.');
+        }
+      }).render(selectorId);
+    }
+
+    chiudiModalePagamento(): void {
+      this.escursioneInPagamentoId = null;
+      this.cdr.detectChanges();
+    }
+
+    isGuidaOAdmin(): boolean {
+      const dati = this.getDatiUtenteDalToken();
+      return dati && (dati.role === 'GUIDA' || dati.role === 'ADMIN');
+    }
+
+    apriModaleCreaEscursione(): void {
+      this.mostraModaleCreaEscursione = true;
+      this.nuovoTitolo = '';
+      this.nuovaDescrizione = '';
+      this.nuovaDifficolta = 'BASSA';
+      this.nuoviPostiTotali = 10;
+      this.nuovaDataOrario = '';
+      this.erroreCreazione = '';
+      this.cdr.detectChanges();
+    }
+
+    chiudiModaleCreaEscursione(): void {
+      this.mostraModaleCreaEscursione = false;
+      this.cdr.detectChanges();
+    }
+
+    onCreaEscursione(): void {
+      const datiUtente = this.getDatiUtenteDalToken();
+      if (!datiUtente) {
+        alert('Sessione non valida.');
+        return;
+      }
+
+      let formattedDate = this.nuovaDataOrario;
+      if (formattedDate && formattedDate.length === 16) {
+        formattedDate += ':00';
+      }
+
+      const payload = {
+        titolo: this.nuovoTitolo,
+        descrizione: this.nuovaDescrizione,
+        difficolta: this.nuovaDifficolta,
+        postiTotali: this.nuoviPostiTotali,
+        postiDisponibili: this.nuoviPostiTotali,
+        dataOrario: formattedDate,
+        stato: 'PROGRAMMATA',
+        guidaId: datiUtente.id
+      };
+
+      this.parcoService.creaEscursione(payload).subscribe({
+        next: (nuovaEsc) => {
+          alert('Escursione creata con successo!');
+          this.chiudiModaleCreaEscursione();
+          this.caricaDatiDalDatabase();
+        },
+        error: (err) => {
+          console.error('Errore durante la creazione:', err);
+          this.erroreCreazione = err.error?.message || 'Impossibile creare l\'escursione.';
+          this.cdr.detectChanges();
+        }
+      });
+    }
+
+    // Apre il pop-up dei dettagli per una specifica specie faunistica o vegetale
+    apriDettaglio(elemento: any, tipo: 'fauna' | 'flora'): void {
+      this.elementoSelezionato = elemento;
+      this.tipoElementoSelezionato = tipo;
+      this.cdr.detectChanges();
+    }
+
+    // Chiude il pop-up dei dettagli pulendo lo stato
+    chiudiDettaglio(): void {
+      this.elementoSelezionato = null;
+      this.tipoElementoSelezionato = null;
+      this.cdr.detectChanges();
+    }
+
+    // Costruisce l'URL dell'immagine di sfondo per il pop-up basandosi sul nome dell'elemento sanitizzato
+    getImageUrl(): string {
+      if (!this.elementoSelezionato) return 'none';
+      // Sanitizza il nome per creare un nome di file pulito (es. "Lupo della Sila" -> "lupo_della_sila")
+      const sanitizedNome = this.elementoSelezionato.nome
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '_')
+        .replace(/_+/g, '_');
+      
+      const path = this.tipoElementoSelezionato === 'fauna' ? 'fauna' : 'flora';
+      return `url('/images/${path}/${sanitizedNome}.jpg')`;
+    }
 }

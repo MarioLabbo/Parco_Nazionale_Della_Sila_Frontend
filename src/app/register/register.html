@@ -1,26 +1,75 @@
-<div class="register-container">
-  <h2>Crea un account Parco Sila</h2>
+<div class="auth-page">
 
-  <form (ngSubmit)="onSubmit()">
-
-    <div class="form-group">
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" [(ngModel)]="nuovoUtente.username" required placeholder="Scegli un username">
+  <div class="auth-visual">
+    <div class="auth-contours" aria-hidden="true"></div>
+    <div class="auth-visual-content">
+      <span class="trail-badge">Nuovo qui?</span>
+      <h2>Inizia il tuo<br>cammino.</h2>
+      <p>Crea un account per prenotare escursioni<br>e seguire fauna e flora del parco.</p>
     </div>
+  </div>
 
-    <div class="form-group">
-      <label for="email">Indirizzo Email</label>
-      <input type="email" id="email" name="email" [(ngModel)]="nuovoUtente.email" required placeholder="inserisci la tua email">
-    </div>
+  <div class="auth-panel">
+    <form class="auth-card" (ngSubmit)="onRegister()" #registerForm="ngForm">
+      <span class="brand">🏔 Parco della Sila</span>
+      <h1>Crea il tuo account</h1>
+      <p class="auth-sub">Bastano pochi dati per iniziare.</p>
 
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" [(ngModel)]="nuovoUtente.password" required placeholder="Scegli una password sicura">
-    </div>
+      <div class="field">
+        <label for="nome">Nome completo</label>
+        <input
+          id="nome"
+          type="text"
+          name="nome"
+          [(ngModel)]="nome"
+          required
+          placeholder="Mario Rossi">
+      </div>
 
-    <button type="submit">Registrati</button>
-  </form>
+      <div class="field">
+        <label for="reg-email">Email</label>
+        <input
+          id="reg-email"
+          type="email"
+          name="email"
+          [(ngModel)]="email"
+          required
+          placeholder="nome@esempio.it">
+      </div>
 
-  <p *ngIf="successMessage" style="color: green; font-weight: bold;">{{ successMessage }}</p>
-  <p *ngIf="errorMessage" style="color: red; font-weight: bold;">{{ errorMessage }}</p>
+      <div class="field">
+        <label for="reg-password">Password</label>
+        <input
+          id="reg-password"
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          required
+          minlength="8"
+          placeholder="Minimo 8 caratteri">
+      </div>
+
+      <div class="field">
+        <label for="conferma-password">Conferma password</label>
+        <input
+          id="conferma-password"
+          type="password"
+          name="confermaPassword"
+          [(ngModel)]="confermaPassword"
+          required
+          placeholder="Ripeti la password">
+      </div>
+
+      <div class="error-box" *ngIf="erroreRegister">{{ erroreRegister }}</div>
+
+      <button type="submit" class="btn-primary" [disabled]="registerForm.invalid">
+        Crea account
+      </button>
+
+      <p class="switch-auth">
+        Hai già un account? <a routerLink="/login">Accedi</a>
+      </p>
+    </form>
+  </div>
+
 </div>

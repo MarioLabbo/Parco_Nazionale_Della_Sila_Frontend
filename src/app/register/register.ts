@@ -10,32 +10,34 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent {
 
-  nuovoUtente = {
-    username: '',
-    email: '',
-    password: '',
-    ruolo: 'TURISTA' // Assegniamo automaticamente il ruolo di base
-  };
-
-  errorMessage = '';
-  successMessage = '';
+  nome = '';
+  email = '';
+  password = '';
+  confermaPassword = '';
+  erroreRegister = '';
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  onSubmit() {
-    this.authService.register(this.nuovoUtente).subscribe({
-      next: (response: any) => {
-        this.successMessage = 'Registrazione completata con successo! Ora puoi accedere.';
-        this.errorMessage = '';
+  onRegister() {
+    if (this.password !== this.confermaPassword) {
+      this.erroreRegister = 'Le password non coincidono.';
+      return;
+    }
 
-        // Aspetta 2 secondi per far leggere il messaggio
-        setTimeout(() => {
-           console.log("Utente registrato, pronto per il login!");
-        }, 2000);
+    const nuovoUtente = {
+      username: this.nome, // using name as username
+      email: this.email,
+      password: this.password,
+      ruolo: 'TURISTA'
+    };
+
+    this.authService.register(nuovoUtente).subscribe({
+      next: (response: any) => {
+        console.log('Registrazione completata con successo! Reindirizzamento al login...');
+        this.router.navigate(['/login']);
       },
       error: (err: any) => {
-        this.errorMessage = 'Errore durante la registrazione. Username o email forse già esistenti?';
-        this.successMessage = '';
+        this.erroreRegister = 'Errore durante la registrazione. Email forse già esistente?';
         console.error('Errore registrazione:', err);
       }
     });

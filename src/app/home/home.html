@@ -1,66 +1,291 @@
 <div class="home-container">
 
+  <!-- ============ NAVBAR ============ -->
+  <nav class="topbar">
+    <div class="topbar-inner">
+      <span class="brand">
+        <span class="brand-mark">🏔</span>
+        Parco Nazionale <strong>della Sila</strong>
+      </span>
+      <div class="topbar-links">
+        <button (click)="impostaSezione('tutto')" [class.active]="sezioneAttiva === 'tutto'">Home</button>
+        <button (click)="impostaSezione('fauna')" [class.active]="sezioneAttiva === 'fauna'">Fauna</button>
+        <button (click)="impostaSezione('flora')" [class.active]="sezioneAttiva === 'flora'">Flora</button>
+        <button (click)="impostaSezione('escursioni')" [class.active]="sezioneAttiva === 'escursioni'">Escursioni</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
   <header class="home-hero">
-    <h1>Benvenuto nel Parco Nazionale della Sila</h1>
-    <p>Esplora la biodiversità e i sentieri mozzafiato dell'altopiano calabrese.</p>
+    <div class="hero-contours" aria-hidden="true"></div>
+    <div class="hero-content">
+      <span class="trail-badge">Altopiano della Sila · Calabria</span>
+      <h1>Un respiro di verde<br>senza confini</h1>
+      <p>Boschi secolari, laghi d'altura e sentieri che raccontano<br>una delle riserve naturali più antiche d'Italia.</p>
+    </div>
   </header>
 
-  <div class="filter-bar">
-    <button (click)="impostaSezione('tutto')" [class.active]="sezioneAttiva === 'tutto'">Home</button>
-    <button (click)="impostaSezione('fauna')" [class.active]="sezioneAttiva === 'fauna'">Fauna</button>
-    <button (click)="impostaSezione('flora')" [class.active]="sezioneAttiva === 'flora'">Flora</button>
-    <button (click)="impostaSezione('escursioni')" [class.active]="sezioneAttiva === 'escursioni'">Escursioni</button>
-  </div>
+  <div class="contour-divider"></div>
 
-  <section *ngIf="sezioneAttiva === 'tutto' || sezioneAttiva === 'fauna'" class="data-section">
-    <h2>La Fauna Protetta</h2>
+  <!-- ============ INTRODUZIONE ALLA SILA ============ -->
+  <section *ngIf="sezioneAttiva === 'tutto'" class="data-section intro-section">
+    <div class="intro-grid">
+      <div class="intro-text">
+        <span class="eyebrow">Benvenuti nel portale</span>
+        <h2>Il Parco Nazionale della Sila</h2>
+        <p>
+          Il Parco Nazionale della Sila, situato nel cuore della Calabria, custodisce uno dei patrimoni naturalistici più ricchi e affascinanti d'Europa. Esteso su oltre 73.000 ettari tra le province di Cosenza, Catanzaro e Crotone, il parco è famoso per i suoi fitti boschi di pino laricio, i grandi laghi d'altura (Cecita, Arvo, Ampollino) e una biodiversità straordinaria riconosciuta dall'UNESCO come Riserva della Biosfera.
+        </p>
+        <p>
+          Questo portale nasce per accompagnarvi alla scoperta dell'altopiano silano. Da qui potrete esplorare le meraviglie della <strong>Fauna</strong> locale (come il maestoso lupo della Sila), approfondire la conoscenza della <strong>Flora</strong> secolare ed effettuare le prenotazioni per le nostre <strong>Escursioni</strong> guidate in totale semplicità.
+        </p>
+
+        <div class="intro-features">
+          <div class="feature-item" (click)="impostaSezione('fauna')">
+            <span class="feature-icon">🐺</span>
+            <h4>Fauna Protetta</h4>
+            <p>Scopri gli animali simbolici del parco.</p>
+          </div>
+          <div class="feature-item" (click)="impostaSezione('flora')">
+            <span class="feature-icon">🌲</span>
+            <h4>Boschi Secolari</h4>
+            <p>Esplora i Giganti della Sila e le piante native.</p>
+          </div>
+          <div class="feature-item" (click)="impostaSezione('escursioni')">
+            <span class="feature-icon">🥾</span>
+            <h4>Escursioni Guidate</h4>
+            <p>Prenota e paga in sicurezza il tuo sentiero.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAUNA ============ -->
+  <section *ngIf="sezioneAttiva === 'fauna'" class="data-section">
+    <div class="section-heading">
+      <span class="eyebrow">Chi popola il parco</span>
+      <h2>La Fauna Protetta</h2>
+    </div>
     <div class="cards-grid">
-      <div class="card" *ngFor="let animale of faunaList">
+      <article class="card clickable-card" *ngFor="let animale of faunaList" (click)="apriDettaglio(animale, 'fauna')">
         <div class="card-content">
           <h3>{{ animale.nome }}</h3>
           <p>{{ animale.descrizione }}</p>
+          <span class="read-more-link">Leggi di più &rarr;</span>
         </div>
-      </div>
+      </article>
     </div>
   </section>
 
-  <section *ngIf="sezioneAttiva === 'tutto' || sezioneAttiva === 'flora'" class="data-section">
-    <h2>La Flora e i Boschi</h2>
+  <!-- ============ FLORA ============ -->
+  <section *ngIf="sezioneAttiva === 'flora'" class="data-section alt">
+    <div class="section-heading">
+      <span class="eyebrow">Radici dell'altopiano</span>
+      <h2>La Flora e i Boschi</h2>
+    </div>
     <div class="cards-grid">
-      <div class="card" *ngFor="let pianta of floraList">
+      <article class="card clickable-card" *ngFor="let pianta of floraList" (click)="apriDettaglio(pianta, 'flora')">
         <div class="card-content">
           <h3>{{ pianta.nome }}</h3>
           <p>{{ pianta.descrizione }}</p>
+          <span class="read-more-link">Leggi di più &rarr;</span>
         </div>
-      </div>
+      </article>
     </div>
   </section>
 
-  <section *ngIf="sezioneAttiva === 'tutto' || sezioneAttiva === 'escursioni'" class="data-section">
-    <h2>Itinerari ed Escursioni</h2>
-    <div class="cards-grid">
-      <div class="card excursion-card" *ngFor="let esc of escursioniList">
+  <!-- ============ ESCURSIONI + PRENOTAZIONE ============ -->
+  <section *ngIf="sezioneAttiva === 'escursioni'" class="data-section">
+    <div class="section-heading">
+      <span class="eyebrow">Cammina nella Sila</span>
+      <h2>Itinerari ed Escursioni</h2>
+
+      <!-- Pulsante visibile solo a Guide e Admin -->
+      <div *ngIf="isGuidaOAdmin()" style="margin-top: 15px;">
+        <button class="btn-prenota" (click)="apriModaleCreaEscursione()">
+          ➕ Crea Nuova Escursione
+        </button>
+      </div>
+    </div>
+
+    <div class="cards-grid excursions">
+      <article class="card excursion-card" *ngFor="let esc of escursioniList">
         <div class="card-content">
-          <h3>{{ esc.titolo }}</h3>
+          <h3>{{ esc.titoloEscursione || esc.titolo }}</h3>
           <div class="excursion-meta">
-            <span class="badge">Difficoltà: {{ esc.difficolta }}</span>
-            <span class="badge">Durata: {{ esc.durata }}</span>
+            <span class="trail-badge">Difficoltà: {{ esc.difficolta }}</span>
+            <span class="trail-badge" *ngIf="esc.dataOrario">Data: {{ esc.dataOrario | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
           <p>{{ esc.descrizione }}</p>
-          <button class="btn-dettagli">Vedi Percorso</button>
+          <p class="posti" *ngIf="esc.postiDisponibili !== undefined">
+            Posti disponibili: <strong>{{ esc.postiDisponibili }}</strong>
+          </p>
+
+          <div class="booking-section">
+            <ng-container *ngIf="escursioneInPagamentoId !== esc.id">
+              <div class="qty-row">
+                <label [attr.for]="'quantita-' + esc.id">Partecipanti</label>
+                <input
+                  type="number"
+                  [id]="'quantita-' + esc.id"
+                  #numeroScelto
+                  value="1"
+                  min="1"
+                  [max]="esc.postiDisponibili"
+                  class="qty-input">
+              </div>
+              <button class="btn-prenota" (click)="prenota(esc.id, numeroScelto.value)">
+                Prenota Ora
+              </button>
+            </ng-container>
+
+            <button
+              *ngIf="escursioneInPagamentoId === esc.id"
+              class="btn-prenota pending"
+              disabled>
+              In attesa di pagamento…
+            </button>
+          </div>
         </div>
-      </div>
+      </article>
     </div>
   </section>
 
-  <pre>{{ escursioniList | json }}</pre>
-  <div class="card-escursione" *ngFor="let escursione of escursioniList">
-    <h3>{{ escursione.titoloEscursione }}</h3>
-    <p>Posti disponibili: {{ escursione.postiDisponibili }}</p>
+  <!-- ============ MODALE PAGAMENTO PAYPAL ============ -->
+  <div class="modal-overlay" [class.active]="escursioneInPagamentoId !== null">
+    <div class="modal-content">
+      <button class="modal-close" (click)="chiudiModalePagamento()" aria-label="Chiudi">&times;</button>
+      <span class="trail-badge">Ultimo passo</span>
+      <h5>Prenotazione registrata!</h5>
+      <p class="modal-sub">Completa il pagamento per confermare il tuo posto.</p>
+      <div id="paypal-button-container"></div>
+    </div>
+  </div>
 
-    <button class="btn-prenota" (click)="prenota(escursione.id)">
-      Prenota Ora
-    </button>
+  <!-- ============ MODALE CREAZIONE ESCURSIONE (GUIDE/ADMIN) ============ -->
+  <div class="modal-overlay" [class.active]="mostraModaleCreaEscursione">
+    <div class="modal-content" style="max-width: 500px;">
+      <button class="modal-close" (click)="chiudiModaleCreaEscursione()" aria-label="Chiudi">&times;</button>
+      <span class="trail-badge">Pannello Guida</span>
+      <h5>Crea Nuova Escursione</h5>
+      <p class="modal-sub">Inserisci i dettagli del nuovo itinerario guidato.</p>
+
+      <form (ngSubmit)="onCreaEscursione()" #creaForm="ngForm" class="auth-card" style="box-shadow: none; padding: 0; background: transparent;">
+        <div class="field" style="margin-bottom: 12px; text-align: left;">
+          <label for="nuovoTitolo" style="font-size: 0.85rem; font-weight: 600;">Titolo</label>
+          <input
+            id="nuovoTitolo"
+            type="text"
+            name="nuovoTitolo"
+            [(ngModel)]="nuovoTitolo"
+            required
+            placeholder="es. Anello del Lago Arvo"
+            style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark);">
+        </div>
+
+        <div class="field" style="margin-bottom: 12px; text-align: left;">
+          <label for="nuovaDescrizione" style="font-size: 0.85rem; font-weight: 600;">Descrizione</label>
+          <textarea
+            id="nuovaDescrizione"
+            name="nuovaDescrizione"
+            [(ngModel)]="nuovaDescrizione"
+            required
+            placeholder="Descrivi l'itinerario, i punti di interesse e il percorso..."
+            style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark); height: 80px; resize: vertical; font-family: inherit;"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+          <div class="field" style="flex: 1; text-align: left;">
+            <label for="nuovaDifficolta" style="font-size: 0.85rem; font-weight: 600;">Difficoltà</label>
+            <select
+              id="nuovaDifficolta"
+              name="nuovaDifficolta"
+              [(ngModel)]="nuovaDifficolta"
+              required
+              style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark); background: white;">
+              <option value="BASSA">Bassa</option>
+              <option value="MEDIA">Media</option>
+              <option value="ALTA">Alta</option>
+            </select>
+          </div>
+
+          <div class="field" style="flex: 1; text-align: left;">
+            <label for="nuoviPostiTotali" style="font-size: 0.85rem; font-weight: 600;">Posti Totali</label>
+            <input
+              id="nuoviPostiTotali"
+              type="number"
+              name="nuoviPostiTotali"
+              [(ngModel)]="nuoviPostiTotali"
+              required
+              min="1"
+              style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark);">
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom: 20px; text-align: left;">
+          <label for="nuovaDataOrario" style="font-size: 0.85rem; font-weight: 600;">Data e Ora di Partenza</label>
+          <input
+            id="nuovaDataOrario"
+            type="datetime-local"
+            name="nuovaDataOrario"
+            [(ngModel)]="nuovaDataOrario"
+            required
+            style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark);">
+        </div>
+
+        <div *ngIf="erroreCreazione" class="error-banner" style="margin-bottom: 12px; color: var(--gold); font-size: 0.85rem;">
+          {{ erroreCreazione }}
+        </div>
+
+        <button type="submit" [disabled]="!creaForm.form.valid" class="btn-prenota" style="width: 100%; padding: 12px;">
+          Salva Escursione
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ MODALE DETTAGLI FAUNA/FLORA ============ -->
+  <!-- Questo pop-up mostra le informazioni dettagliate e l'immagine (se presente in public/images/) della specie cliccata -->
+  <div class="modal-overlay" [class.active]="elementoSelezionato !== null">
+    <div class="modal-content" style="max-width: 600px; padding: 0; overflow: hidden; border-radius: var(--radius-lg);">
+      <button class="modal-close" (click)="chiudiDettaglio()" aria-label="Chiudi" style="top: 15px; right: 15px; z-index: 10; color: white; background: rgba(0,0,0,0.5); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
+      
+      <!-- Spazio per l'immagine dinamica della specie (fauna/flora) -->
+      <div class="modal-image-container" style="position: relative; height: 280px; background-color: var(--forest-dark); background-size: cover; background-position: center; display: flex; align-items: flex-end;"
+           [style.backgroundImage]="getImageUrl()">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);"></div>
+        <div style="position: relative; z-index: 2; padding: 24px; color: var(--cream);">
+          <span class="trail-badge" style="background: #e0a96d; color: var(--forest-dark); font-weight: bold; margin-bottom: 8px; display: inline-block;">
+            {{ tipoElementoSelezionato === 'fauna' ? '🐺 Fauna' : '🌲 Flora' }}
+          </span>
+          <h3 style="margin: 0; font-size: 1.8rem; font-family: var(--font-display); font-weight: 700;">{{ elementoSelezionato?.nome }}</h3>
+        </div>
+      </div>
+
+      <div style="padding: 28px; background: var(--cream-light); color: var(--forest-dark); text-align: left;">
+        <h5 style="margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; font-family: var(--font-display); font-weight: 600;">Descrizione Dettagliata</h5>
+        <p style="line-height: 1.6; font-size: 0.95rem; margin-bottom: 24px;">
+          {{ elementoSelezionato?.descrizione }}
+        </p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; border-top: 1px solid var(--cream-dark); padding-top: 16px;">
+          <div>
+            <strong style="font-size: 0.8rem; text-transform: uppercase; color: var(--cream-dark); display: block;">Stato di Conservazione</strong>
+            <span style="font-size: 0.95rem; font-weight: 500;">
+              {{ tipoElementoSelezionato === 'fauna' ? 'Specie Protetta' : 'Tipica dell\'Altopiano' }}
+            </span>
+          </div>
+          <div>
+            <strong style="font-size: 0.8rem; text-transform: uppercase; color: var(--cream-dark); display: block;">Habitat Principale</strong>
+            <span style="font-size: 0.95rem; font-weight: 500;">
+              {{ tipoElementoSelezionato === 'fauna' ? 'Fitti boschi e valli montane' : 'Suoli acidi silani (1000-1800m)' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>

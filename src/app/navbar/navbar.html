@@ -10,6 +10,22 @@
     <li *ngIf="isLoggedIn()">
       <span class="user-badge">Ruolo: {{ getRuolo() }}</span>
     </li>
+    <li *ngIf="isLoggedIn() && getRuolo() === 'ADMIN'">
+      <div class="admin-promote-bar" style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: var(--radius-sm); border: 1px dashed #e0a96d;">
+        <span style="font-size: 0.8rem; color: #e0a96d; font-weight: 600;">Promuovi a Guida:</span>
+        <input
+          type="text"
+          placeholder="Cerca Username"
+          [(ngModel)]="usernameDaPromuovere"
+          style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--cream-dark); color: white; padding: 4px 8px; border-radius: var(--radius-sm); font-size: 0.8rem; outline: none; width: 140px;">
+        <button
+          (click)="promuoviUtente()"
+          [disabled]="!usernameDaPromuovere"
+          style="background: #e0a96d; border: none; color: var(--forest-dark, #1b3b2b); padding: 4px 10px; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: opacity 0.2s;">
+          Promuovi
+        </button>
+      </div>
+    </li>
     <li *ngIf="isLoggedIn()">
       <button (click)="logout()" class="btn-logout">Logout</button>
     </li>
