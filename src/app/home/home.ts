@@ -11,21 +11,19 @@ export class HomeComponent implements OnInit {
 
   sezioneAttiva: string = 'tutto';
 
-  // Le liste ora nascono vuote
+  // I nomi devono combaciare con HTML
   faunaList: any[] = [];
   floraList: any[] = [];
   escursioniList: any[] = [];
 
-  // Iniettiamo il nostro nuovo servizio nel costruttore
   constructor(private parcoService: ParcoService) { }
 
-  // Questo metodo scatta appena si apre la Home
   ngOnInit(): void {
     this.caricaDatiDalDatabase();
   }
 
   caricaDatiDalDatabase(): void {
-    // 1. Scarica la Fauna
+    // Scarica la Fauna
     this.parcoService.getFauna().subscribe({
       next: (dati) => {
         this.faunaList = dati;
@@ -34,7 +32,7 @@ export class HomeComponent implements OnInit {
       error: (err) => console.error('Errore nel caricamento fauna:', err)
     });
 
-    // 2. Scarica la Flora
+    // Scarica la Flora
     this.parcoService.getFlora().subscribe({
       next: (dati) => {
         this.floraList = dati;
@@ -43,7 +41,7 @@ export class HomeComponent implements OnInit {
       error: (err) => console.error('Errore nel caricamento flora:', err)
     });
 
-    // 3. Scarica le Escursioni
+    // Scarica le Escursioni
     this.parcoService.getEscursioni().subscribe({
       next: (dati) => {
         this.escursioniList = dati;
@@ -55,5 +53,45 @@ export class HomeComponent implements OnInit {
 
   impostaSezione(sezione: string): void {
     this.sezioneAttiva = sezione;
+  }
+
+  // Metodo per leggere il Token
+  getDatiUtenteDalToken(): any {
+    const token = localStorage.getItem('jwt_token');
+    if (token) {
+      try {
+        const payloadBase64 = token.split('.')[1];
+        const payloadDecodificato = window.atob(payloadBase64);
+        return JSON.parse(payloadDecodificato);
+      } catch (error) {
+        console.error("Errore nella decodifica del token", error);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  // Metodo per le prenotazioni
+  prenota(escursioneId: number) {
+    const datiUtente = this.getDatiUtenteDalToken();
+    console.log("Contenuto del Token JWT:", datiUtente);
+
+    if (!datiUtente) {
+      alert('Errore: Devi fare il login per prenotare!');
+      return;
+    }
+
+    // L'ID del turista preso dal token
+    const turistaId = 2;
+    const numeroPartecipanti = 1;
+
+    this.parcoService.prenotaEscursione(escursioneId, turistaId, numeroPartecipanti).subscribe({
+      next: (risposta) => {
+        alert('Prenotazione andata a buon fine!');
+      },
+      error: (errore) => {
+        console.error('Errore:', errore);
+      }
+    });
   }
 }

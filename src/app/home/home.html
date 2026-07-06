@@ -52,5 +52,15 @@
       </div>
     </div>
   </section>
+
   <pre>{{ escursioniList | json }}</pre>
+  <div class="card-escursione" *ngFor="let escursione of escursioniList">
+    <h3>{{ escursione.titoloEscursione }}</h3>
+    <p>Posti disponibili: {{ escursione.postiDisponibili }}</p>
+
+    <button class="btn-prenota" (click)="prenota(escursione.id)">
+      Prenota Ora
+    </button>
+  </div>
+
 </div>

@@ -38,4 +38,5 @@ export class AuthService {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_role');
   }
+
 }
