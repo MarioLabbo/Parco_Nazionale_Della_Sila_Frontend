@@ -367,3 +367,99 @@
   margin: 0;
 }
 
+/* ---------- BADGES DI STATO E MESSAGGI ---------- */
+.status-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.status-badge.programmata {
+  background: rgba(31, 51, 39, 0.1);
+  color: var(--forest);
+}
+.status-badge.completata {
+  background: rgba(224, 169, 109, 0.2);
+  color: var(--forest-dark);
+  border: 1px solid rgba(224, 169, 109, 0.4);
+}
+.status-badge.annullata {
+  background: rgba(211, 47, 47, 0.1);
+  color: #d32f2f;
+}
+
+.completed-msg {
+  background: rgba(31, 51, 39, 0.05);
+  border: 1px solid var(--cream-dark);
+  color: var(--forest-dark);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.cancelled-msg {
+  background: rgba(211, 47, 47, 0.05);
+  border: 1px solid rgba(211, 47, 47, 0.2);
+  color: #d32f2f;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.btn-feedback {
+  width: 100%;
+  background: transparent;
+  color: var(--forest);
+  border: 2px solid var(--forest);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, transform 0.2s;
+}
+.btn-feedback:hover {
+  background: var(--forest);
+  color: var(--cream);
+  transform: translateY(-1px);
+}
+.btn-feedback:active {
+  transform: translateY(0);
+}
+
+/* ---------- STELLE E FORM RECENSIONI ---------- */
+.stars-selector button {
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.stars-selector button:hover {
+  transform: scale(1.25);
+}
+
+.reviews-list-container::-webkit-scrollbar {
+  width: 6px;
+}
+.reviews-list-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.reviews-list-container::-webkit-scrollbar-thumb {
+  background-color: var(--cream-dark);
+  border-radius: 3px;
+}
+
+.review-item-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.review-item-card:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+

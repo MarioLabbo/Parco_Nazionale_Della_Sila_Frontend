@@ -117,35 +117,60 @@
           <div class="excursion-meta">
             <span class="trail-badge">Difficoltà: {{ esc.difficolta }}</span>
             <span class="trail-badge" *ngIf="esc.dataOrario">Data: {{ esc.dataOrario | date:'dd/MM/yyyy HH:mm' }}</span>
+            <span class="status-badge" [ngClass]="esc.stato ? esc.stato.toLowerCase() : 'programmata'">
+              {{ esc.stato || 'PROGRAMMATA' }}
+            </span>
           </div>
           <p>{{ esc.descrizione }}</p>
-          <p class="posti" *ngIf="esc.postiDisponibili !== undefined">
+          <p class="posti" *ngIf="esc.stato === 'PROGRAMMATA' && esc.postiDisponibili !== undefined">
             Posti disponibili: <strong>{{ esc.postiDisponibili }}</strong>
           </p>
 
           <div class="booking-section">
-            <ng-container *ngIf="escursioneInPagamentoId !== esc.id">
-              <div class="qty-row">
-                <label [attr.for]="'quantita-' + esc.id">Partecipanti</label>
-                <input
-                  type="number"
-                  [id]="'quantita-' + esc.id"
-                  #numeroScelto
-                  value="1"
-                  min="1"
-                  [max]="esc.postiDisponibili"
-                  class="qty-input">
-              </div>
-              <button class="btn-prenota" (click)="prenota(esc.id, numeroScelto.value)">
-                Prenota Ora
+            <!-- Se programmata, mostriamo il modulo di prenotazione -->
+            <ng-container *ngIf="esc.stato === 'PROGRAMMATA'">
+              <ng-container *ngIf="escursioneInPagamentoId !== esc.id">
+                <div class="qty-row">
+                  <label [attr.for]="'quantita-' + esc.id">Partecipanti</label>
+                  <input
+                    type="number"
+                    [id]="'quantita-' + esc.id"
+                    #numeroScelto
+                    value="1"
+                    min="1"
+                    [max]="esc.postiDisponibili"
+                    class="qty-input">
+                </div>
+                <button class="btn-prenota" (click)="prenota(esc.id, numeroScelto.value)">
+                  Prenota Ora
+                </button>
+              </ng-container>
+
+              <button
+                *ngIf="escursioneInPagamentoId === esc.id"
+                class="btn-prenota pending"
+                disabled>
+                In attesa di pagamento…
               </button>
             </ng-container>
 
-            <button
-              *ngIf="escursioneInPagamentoId === esc.id"
-              class="btn-prenota pending"
-              disabled>
-              In attesa di pagamento…
+            <!-- Se completata, mostriamo che è conclusa -->
+            <ng-container *ngIf="esc.stato === 'COMPLETATA'">
+              <div class="completed-msg">
+                <span>✓ Escursione Conclusa</span>
+              </div>
+            </ng-container>
+
+            <!-- Se annullata, mostriamo che è annullata -->
+            <ng-container *ngIf="esc.stato === 'ANNULLATA'">
+              <div class="cancelled-msg">
+                <span>✗ Escursione Annullata</span>
+              </div>
+            </ng-container>
+
+            <!-- Tasto Feedback sempre visibile (si comporta diversamente se completata o meno) -->
+            <button class="btn-feedback" (click)="apriFeedback(esc)" style="margin-top: 12px;">
+              💬 Feedback e Recensioni
             </button>
           </div>
         </div>
@@ -285,6 +310,100 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ MODALE FEEDBACK (COMPLETATA) ============ -->
+  <div class="modal-overlay" [class.active]="escursioneSelezionataFeedback !== null">
+    <div class="modal-content" style="max-width: 600px; text-align: left; padding: 28px;">
+      <button class="modal-close" (click)="chiudiFeedback()" aria-label="Chiudi">&times;</button>
+      <span class="trail-badge">Bacheca Recensioni</span>
+      <h5 style="margin-bottom: 6px; font-family: var(--font-display); font-weight: 700; color: var(--forest-dark);">{{ escursioneSelezionataFeedback?.titoloEscursione || escursioneSelezionataFeedback?.titolo }}</h5>
+      <p class="modal-sub" style="margin-bottom: 20px;">Leggi i commenti degli altri partecipanti o scrivi il tuo feedback.</p>
+
+      <!-- Lista dei Feedback Esistenti -->
+      <div class="reviews-list-container" style="max-height: 250px; overflow-y: auto; margin-bottom: 24px; padding-right: 8px;">
+        <div *ngIf="!escursioneSelezionataFeedback?.recensioni || escursioneSelezionataFeedback.recensioni.length === 0" class="no-reviews-msg" style="color: var(--ink-soft); font-style: italic; text-align: center; padding: 20px 0;">
+          Non ci sono ancora feedback per questa escursione. Sii il primo a scriverne uno!
+        </div>
+        
+        <div class="review-item-card" *ngFor="let fb of escursioneSelezionataFeedback?.recensioni" style="background: var(--cream-light); border: 1px solid var(--cream-dark); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-weight: 700; color: var(--forest-dark); font-size: 0.9rem;">
+              👤 {{ fb.usernameTurista }}
+            </span>
+            <span style="color: var(--gold); font-size: 0.95rem;">
+              <span *ngFor="let star of [1,2,3,4,5]">
+                {{ fb.valutazione >= star ? '★' : '☆' }}
+              </span>
+            </span>
+          </div>
+          <p style="margin: 0; color: var(--ink); font-size: 0.9rem; line-height: 1.4;">{{ fb.commento }}</p>
+        </div>
+      </div>
+
+      <!-- Form per Nuovo Feedback -->
+      <div class="new-review-form" style="border-top: 1px solid var(--cream-dark); padding-top: 20px;">
+        <h6 style="margin-top: 0; margin-bottom: 12px; font-family: var(--font-display); font-size: 1.05rem; color: var(--forest-dark); font-weight: 600;">Condividi la tua Esperienza</h6>
+        
+        <div *ngIf="getDatiUtenteDalToken(); else loginRichiesto">
+          <form (ngSubmit)="inviaFeedback()">
+            <!-- Rating con Stelle Interattive -->
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+              <span style="font-size: 0.85rem; font-weight: 600; color: var(--ink-soft);">Valutazione:</span>
+              <div class="stars-selector" style="display: flex; gap: 4px;">
+                <button type="button" *ngFor="let star of [1,2,3,4,5]" 
+                        (click)="selezionaStella(star)" 
+                        style="background: none; border: none; cursor: pointer; padding: 0; font-size: 1.4rem; color: var(--gold); outline: none;">
+                  {{ valutazioneNuovoFeedback >= star ? '★' : '☆' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Area di Testo per Commento -->
+            <div style="margin-bottom: 16px;">
+              <label for="commentoNuovoFeedback" style="font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); display: block; margin-bottom: 6px;">Il tuo Commento</label>
+              <textarea
+                id="commentoNuovoFeedback"
+                name="commentoNuovoFeedback"
+                [(ngModel)]="commentoNuovoFeedback"
+                required
+                placeholder="Com'è andato il percorso? La guida è stata chiara? Raccontaci..."
+                style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark); height: 70px; resize: vertical; font-family: inherit; font-size: 0.9rem;"></textarea>
+            </div>
+
+            <div *ngIf="erroreFeedback" class="error-banner" style="margin-bottom: 12px; color: #a94442; font-size: 0.85rem;">
+              {{ erroreFeedback }}
+            </div>
+
+            <button type="submit" class="btn-prenota" style="width: 100%; padding: 10px;">
+              Invia Recensione
+            </button>
+          </form>
+        </div>
+
+        <ng-template #loginRichiesto>
+          <div style="background: rgba(224, 169, 109, 0.15); border: 1px dashed var(--gold); border-radius: var(--radius-sm); padding: 14px; text-align: center; color: var(--forest-dark); font-size: 0.9rem;">
+            Devi effettuare il login per scrivere un feedback.
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PICCOLO POP-UP (NON CONCLUSA) ============ -->
+  <div class="modal-overlay" [class.active]="mostraPopUpNonConclusa">
+    <div class="modal-content" style="max-width: 400px; text-align: center; padding: 28px;">
+      <button class="modal-close" (click)="chiudiPopUpNonConclusa()" aria-label="Chiudi">&times;</button>
+      <div style="font-size: 3rem; margin-bottom: 14px;">🥾</div>
+      <h5 style="margin-top: 0; margin-bottom: 10px; font-family: var(--font-display); color: var(--forest-dark); font-weight: 700;">Escursione non conclusa</h5>
+      <p style="font-size: 0.95rem; color: var(--ink-soft); line-height: 1.5; margin: 0 0 20px;">
+        Puoi visualizzare e scrivere feedback solo per escursioni che sono state completate.<br>
+        Torna a trovarci quando questa escursione sarà terminata!
+      </p>
+      <button class="btn-prenota" (click)="chiudiPopUpNonConclusa()" style="padding: 10px 24px; width: auto; display: inline-block;">
+        Ho Capito
+      </button>
     </div>
   </div>
 

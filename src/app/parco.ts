@@ -88,4 +88,22 @@ export class ParcoService {
     }
     return this.http.put<any>(`${this.baseUrl}/prenotazioni/${prenotazioneId}/conferma?codiceGateway=${codiceGateway}`, {}, { headers: headers });
   }
+
+  getFeedbackEscursione(escursioneId: number): Observable<any[]> {
+    const token = localStorage.getItem('jwt_token');
+    let headers = new HttpHeaders();
+    if (token) {
+      headers = headers.set('Authorization', 'Bearer ' + token);
+    }
+    return this.http.get<any[]>(`${this.baseUrl}/feedback/escursione/${escursioneId}`, { headers: headers });
+  }
+
+  scriviFeedback(escursioneId: number, turistaId: number, feedbackData: any): Observable<any> {
+    const token = localStorage.getItem('jwt_token');
+    let headers = new HttpHeaders();
+    if (token) {
+      headers = headers.set('Authorization', 'Bearer ' + token);
+    }
+    return this.http.post<any>(`${this.baseUrl}/feedback/escursione/${escursioneId}/turista/${turistaId}`, feedbackData, { headers: headers });
+  }
 }
