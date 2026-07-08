@@ -366,4 +366,29 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  puoAnnullare(esc: any): boolean {
+    const dati = this.getDatiUtenteDalToken();
+    if (!dati) return false;
+    if (dati.role === 'ADMIN') return true;
+    if (dati.role === 'GUIDA') {
+      return esc.guidaId === dati.id;
+    }
+    return false;
+  }
+
+  annullaEscursione(escursioneId: number): void {
+    if (confirm('Sei sicuro di voler annullare questa escursione? Tutti i clienti prenotati verranno rimborsati e notificati via email.')) {
+      this.parcoService.annullaEscursione(escursioneId).subscribe({
+        next: (risposta) => {
+          alert('Escursione annullata con successo. I clienti sono stati rimborsati e avvisati via email.');
+          this.caricaDatiDalDatabase();
+        },
+        error: (err) => {
+          console.error("Errore durante l'annullamento dell'escursione:", err);
+          alert(err.error?.message || "Impossibile annullare l'escursione.");
+        }
+      });
+    }
+  }
 }

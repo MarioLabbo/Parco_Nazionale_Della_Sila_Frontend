@@ -11,7 +11,8 @@
         <button (click)="impostaSezione('tutto')" [class.active]="sezioneAttiva === 'tutto'">Home</button>
         <button (click)="impostaSezione('fauna')" [class.active]="sezioneAttiva === 'fauna'">Fauna</button>
         <button (click)="impostaSezione('flora')" [class.active]="sezioneAttiva === 'flora'">Flora</button>
-        <button (click)="impostaSezione('escursioni')" [class.active]="sezioneAttiva === 'escursioni'">Escursioni</button>
+        <button (click)="impostaSezione('escursioni')"
+          [class.active]="sezioneAttiva === 'escursioni'">Escursioni</button>
       </div>
     </div>
   </nav>
@@ -22,7 +23,8 @@
     <div class="hero-content">
       <span class="trail-badge">Altopiano della Sila · Calabria</span>
       <h1>Un respiro di verde<br>senza confini</h1>
-      <p>Boschi secolari, laghi d'altura e sentieri che raccontano<br>una delle riserve naturali più antiche d'Italia.</p>
+      <p>Boschi secolari, laghi d'altura e sentieri che raccontano<br>una delle riserve naturali più antiche d'Italia.
+      </p>
     </div>
   </header>
 
@@ -35,10 +37,16 @@
         <span class="eyebrow">Benvenuti nel portale</span>
         <h2>Il Parco Nazionale della Sila</h2>
         <p>
-          Il Parco Nazionale della Sila, situato nel cuore della Calabria, custodisce uno dei patrimoni naturalistici più ricchi e affascinanti d'Europa. Esteso su oltre 73.000 ettari tra le province di Cosenza, Catanzaro e Crotone, il parco è famoso per i suoi fitti boschi di pino laricio, i grandi laghi d'altura (Cecita, Arvo, Ampollino) e una biodiversità straordinaria riconosciuta dall'UNESCO come Riserva della Biosfera.
+          Il Parco Nazionale della Sila, situato nel cuore della Calabria, custodisce uno dei patrimoni naturalistici
+          più ricchi e affascinanti d'Europa. Esteso su oltre 73.000 ettari tra le province di Cosenza, Catanzaro e
+          Crotone, il parco è famoso per i suoi fitti boschi di pino laricio, i grandi laghi d'altura (Cecita, Arvo,
+          Ampollino) e una biodiversità straordinaria riconosciuta dall'UNESCO come Riserva della Biosfera.
         </p>
         <p>
-          Questo portale nasce per accompagnarvi alla scoperta dell'altopiano silano. Da qui potrete esplorare le meraviglie della <strong>Fauna</strong> locale (come il maestoso lupo della Sila), approfondire la conoscenza della <strong>Flora</strong> secolare ed effettuare le prenotazioni per le nostre <strong>Escursioni</strong> guidate in totale semplicità.
+          Questo portale nasce per accompagnarvi alla scoperta dell'altopiano silano. Da qui potrete esplorare le
+          meraviglie della <strong>Fauna</strong> locale (come il maestoso lupo della Sila), approfondire la conoscenza
+          della <strong>Flora</strong> secolare ed effettuare le prenotazioni per le nostre <strong>Escursioni</strong>
+          guidate in totale semplicità.
         </p>
 
         <div class="intro-features">
@@ -111,14 +119,17 @@
     </div>
 
     <div class="cards-grid excursions">
-      <article class="card excursion-card" *ngFor="let esc of escursioniList">
+      <article class="card excursion-card" [class.sold-out]="esc.stato === 'PROGRAMMATA' && esc.postiDisponibili === 0"
+        *ngFor="let esc of escursioniList">
         <div class="card-content">
           <h3>{{ esc.titoloEscursione || esc.titolo }}</h3>
           <div class="excursion-meta">
             <span class="trail-badge">Difficoltà: {{ esc.difficolta }}</span>
             <span class="trail-badge" *ngIf="esc.dataOrario">Data: {{ esc.dataOrario | date:'dd/MM/yyyy HH:mm' }}</span>
-            <span class="status-badge" [ngClass]="esc.stato ? esc.stato.toLowerCase() : 'programmata'">
-              {{ esc.stato || 'PROGRAMMATA' }}
+            <span class="status-badge"
+              [ngClass]="(esc.stato === 'PROGRAMMATA' && esc.postiDisponibili === 0) ? 'soldout' : (esc.stato ? esc.stato.toLowerCase() : 'programmata')">
+              {{ (esc.stato === 'PROGRAMMATA' && esc.postiDisponibili === 0) ? 'POSTI ESAURITI' : (esc.stato ||
+              'PROGRAMMATA') }}
             </span>
           </div>
           <p>{{ esc.descrizione }}</p>
@@ -129,28 +140,35 @@
           <div class="booking-section">
             <!-- Se programmata, mostriamo il modulo di prenotazione -->
             <ng-container *ngIf="esc.stato === 'PROGRAMMATA'">
-              <ng-container *ngIf="escursioneInPagamentoId !== esc.id">
-                <div class="qty-row">
-                  <label [attr.for]="'quantita-' + esc.id">Partecipanti</label>
-                  <input
-                    type="number"
-                    [id]="'quantita-' + esc.id"
-                    #numeroScelto
-                    value="1"
-                    min="1"
-                    [max]="esc.postiDisponibili"
-                    class="qty-input">
-                </div>
-                <button class="btn-prenota" (click)="prenota(esc.id, numeroScelto.value)">
-                  Prenota Ora
+              <!-- Se ci sono posti disponibili, mostriamo la prenotazione -->
+              <ng-container *ngIf="esc.postiDisponibili > 0">
+                <ng-container *ngIf="escursioneInPagamentoId !== esc.id">
+                  <div class="qty-row">
+                    <label [attr.for]="'quantita-' + esc.id">Partecipanti</label>
+                    <input type="number" [id]="'quantita-' + esc.id" #numeroScelto value="1" min="1"
+                      [max]="esc.postiDisponibili" class="qty-input">
+                  </div>
+                  <button class="btn-prenota" (click)="prenota(esc.id, numeroScelto.value)">
+                    Prenota Ora
+                  </button>
+                </ng-container>
+
+                <button *ngIf="escursioneInPagamentoId === esc.id" class="btn-prenota pending" disabled>
+                  In attesa di pagamento…
                 </button>
               </ng-container>
 
-              <button
-                *ngIf="escursioneInPagamentoId === esc.id"
-                class="btn-prenota pending"
-                disabled>
-                In attesa di pagamento…
+              <!-- Se i posti sono esauriti, mostriamo il messaggio di sold out -->
+              <ng-container *ngIf="esc.postiDisponibili <= 0">
+                <div class="soldout-msg">
+                  <span>✗ Posti Esauriti</span>
+                </div>
+              </ng-container>
+
+              <!-- Pulsante Annulla Escursione per Admin o Guida Proprietaria -->
+              <button *ngIf="puoAnnullare(esc)" class="btn-annulla" (click)="annullaEscursione(esc.id)"
+                style="margin-top: 10px; width: 100%;">
+                ❌ Annulla Escursione
               </button>
             </ng-container>
 
@@ -197,26 +215,18 @@
       <h5>Crea Nuova Escursione</h5>
       <p class="modal-sub">Inserisci i dettagli del nuovo itinerario guidato.</p>
 
-      <form (ngSubmit)="onCreaEscursione()" #creaForm="ngForm" class="auth-card" style="box-shadow: none; padding: 0; background: transparent;">
+      <form (ngSubmit)="onCreaEscursione()" #creaForm="ngForm" class="auth-card"
+        style="box-shadow: none; padding: 0; background: transparent;">
         <div class="field" style="margin-bottom: 12px; text-align: left;">
           <label for="nuovoTitolo" style="font-size: 0.85rem; font-weight: 600;">Titolo</label>
-          <input
-            id="nuovoTitolo"
-            type="text"
-            name="nuovoTitolo"
-            [(ngModel)]="nuovoTitolo"
-            required
+          <input id="nuovoTitolo" type="text" name="nuovoTitolo" [(ngModel)]="nuovoTitolo" required
             placeholder="es. Anello del Lago Arvo"
             style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark);">
         </div>
 
         <div class="field" style="margin-bottom: 12px; text-align: left;">
           <label for="nuovaDescrizione" style="font-size: 0.85rem; font-weight: 600;">Descrizione</label>
-          <textarea
-            id="nuovaDescrizione"
-            name="nuovaDescrizione"
-            [(ngModel)]="nuovaDescrizione"
-            required
+          <textarea id="nuovaDescrizione" name="nuovaDescrizione" [(ngModel)]="nuovaDescrizione" required
             placeholder="Descrivi l'itinerario, i punti di interesse e il percorso..."
             style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark); height: 80px; resize: vertical; font-family: inherit;"></textarea>
         </div>
@@ -224,11 +234,7 @@
         <div style="display: flex; gap: 12px; margin-bottom: 12px;">
           <div class="field" style="flex: 1; text-align: left;">
             <label for="nuovaDifficolta" style="font-size: 0.85rem; font-weight: 600;">Difficoltà</label>
-            <select
-              id="nuovaDifficolta"
-              name="nuovaDifficolta"
-              [(ngModel)]="nuovaDifficolta"
-              required
+            <select id="nuovaDifficolta" name="nuovaDifficolta" [(ngModel)]="nuovaDifficolta" required
               style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark); background: white;">
               <option value="BASSA">Bassa</option>
               <option value="MEDIA">Media</option>
@@ -238,12 +244,7 @@
 
           <div class="field" style="flex: 1; text-align: left;">
             <label for="nuoviPostiTotali" style="font-size: 0.85rem; font-weight: 600;">Posti Totali</label>
-            <input
-              id="nuoviPostiTotali"
-              type="number"
-              name="nuoviPostiTotali"
-              [(ngModel)]="nuoviPostiTotali"
-              required
+            <input id="nuoviPostiTotali" type="number" name="nuoviPostiTotali" [(ngModel)]="nuoviPostiTotali" required
               min="1"
               style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark);">
           </div>
@@ -251,16 +252,13 @@
 
         <div class="field" style="margin-bottom: 20px; text-align: left;">
           <label for="nuovaDataOrario" style="font-size: 0.85rem; font-weight: 600;">Data e Ora di Partenza</label>
-          <input
-            id="nuovaDataOrario"
-            type="datetime-local"
-            name="nuovaDataOrario"
-            [(ngModel)]="nuovaDataOrario"
+          <input id="nuovaDataOrario" type="datetime-local" name="nuovaDataOrario" [(ngModel)]="nuovaDataOrario"
             required
             style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark);">
         </div>
 
-        <div *ngIf="erroreCreazione" class="error-banner" style="margin-bottom: 12px; color: var(--gold); font-size: 0.85rem;">
+        <div *ngIf="erroreCreazione" class="error-banner"
+          style="margin-bottom: 12px; color: var(--gold); font-size: 0.85rem;">
           {{ erroreCreazione }}
         </div>
 
@@ -275,37 +273,51 @@
   <!-- Questo pop-up mostra le informazioni dettagliate e l'immagine (se presente in public/images/) della specie cliccata -->
   <div class="modal-overlay" [class.active]="elementoSelezionato !== null">
     <div class="modal-content" style="max-width: 600px; padding: 0; overflow: hidden; border-radius: var(--radius-lg);">
-      <button class="modal-close" (click)="chiudiDettaglio()" aria-label="Chiudi" style="top: 15px; right: 15px; z-index: 10; color: white; background: rgba(0,0,0,0.5); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
-      
+      <button class="modal-close" (click)="chiudiDettaglio()" aria-label="Chiudi"
+        style="top: 15px; right: 15px; z-index: 10; color: white; background: rgba(0,0,0,0.5); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
+
       <!-- Spazio per l'immagine dinamica della specie (fauna/flora) -->
-      <div class="modal-image-container" style="position: relative; height: 280px; background-color: var(--forest-dark); background-size: cover; background-position: center; display: flex; align-items: flex-end;"
-           [style.backgroundImage]="getImageUrl()">
-        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);"></div>
+      <div class="modal-image-container"
+        style="position: relative; height: 280px; background-color: var(--forest-dark); background-size: cover; background-position: center; display: flex; align-items: flex-end;"
+        [style.backgroundImage]="getImageUrl()">
+        <div
+          style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);">
+        </div>
         <div style="position: relative; z-index: 2; padding: 24px; color: var(--cream);">
-          <span class="trail-badge" style="background: #e0a96d; color: var(--forest-dark); font-weight: bold; margin-bottom: 8px; display: inline-block;">
+          <span class="trail-badge"
+            style="background: #e0a96d; color: var(--forest-dark); font-weight: bold; margin-bottom: 8px; display: inline-block;">
             {{ tipoElementoSelezionato === 'fauna' ? '🐺 Fauna' : '🌲 Flora' }}
           </span>
-          <h3 style="margin: 0; font-size: 1.8rem; font-family: var(--font-display); font-weight: 700;">{{ elementoSelezionato?.nome }}</h3>
+          <h3 style="margin: 0; font-size: 1.8rem; font-family: var(--font-display); font-weight: 700;">{{
+            elementoSelezionato?.nome }}</h3>
         </div>
       </div>
 
       <div style="padding: 28px; background: var(--cream-light); color: var(--forest-dark); text-align: left;">
-        <h5 style="margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; font-family: var(--font-display); font-weight: 600;">Descrizione Dettagliata</h5>
+        <h5
+          style="margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; font-family: var(--font-display); font-weight: 600;">
+          Descrizione Dettagliata</h5>
         <p style="line-height: 1.6; font-size: 0.95rem; margin-bottom: 24px;">
           {{ elementoSelezionato?.descrizione }}
         </p>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; border-top: 1px solid var(--cream-dark); padding-top: 16px;">
+
+        <div
+          style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; border-top: 1px solid var(--cream-dark); padding-top: 16px;">
           <div>
-            <strong style="font-size: 0.8rem; text-transform: uppercase; color: var(--cream-dark); display: block;">Stato di Conservazione</strong>
+            <strong
+              style="font-size: 0.8rem; text-transform: uppercase; color: var(--cream-dark); display: block;">Stato di
+              Conservazione</strong>
             <span style="font-size: 0.95rem; font-weight: 500;">
               {{ tipoElementoSelezionato === 'fauna' ? 'Specie Protetta' : 'Tipica dell\'Altopiano' }}
             </span>
           </div>
           <div>
-            <strong style="font-size: 0.8rem; text-transform: uppercase; color: var(--cream-dark); display: block;">Habitat Principale</strong>
+            <strong
+              style="font-size: 0.8rem; text-transform: uppercase; color: var(--cream-dark); display: block;">Habitat
+              Principale</strong>
             <span style="font-size: 0.95rem; font-weight: 500;">
-              {{ tipoElementoSelezionato === 'fauna' ? 'Fitti boschi e valli montane' : 'Suoli acidi silani (1000-1800m)' }}
+              {{ tipoElementoSelezionato === 'fauna' ? 'Fitti boschi e valli montane' : 'Suoli acidi silani
+              (1000-1800m)' }}
             </span>
           </div>
         </div>
@@ -318,16 +330,22 @@
     <div class="modal-content" style="max-width: 600px; text-align: left; padding: 28px;">
       <button class="modal-close" (click)="chiudiFeedback()" aria-label="Chiudi">&times;</button>
       <span class="trail-badge">Bacheca Recensioni</span>
-      <h5 style="margin-bottom: 6px; font-family: var(--font-display); font-weight: 700; color: var(--forest-dark);">{{ escursioneSelezionataFeedback?.titoloEscursione || escursioneSelezionataFeedback?.titolo }}</h5>
-      <p class="modal-sub" style="margin-bottom: 20px;">Leggi i commenti degli altri partecipanti o scrivi il tuo feedback.</p>
+      <h5 style="margin-bottom: 6px; font-family: var(--font-display); font-weight: 700; color: var(--forest-dark);">{{
+        escursioneSelezionataFeedback?.titoloEscursione || escursioneSelezionataFeedback?.titolo }}</h5>
+      <p class="modal-sub" style="margin-bottom: 20px;">Leggi i commenti degli altri partecipanti o scrivi il tuo
+        feedback.</p>
 
       <!-- Lista dei Feedback Esistenti -->
-      <div class="reviews-list-container" style="max-height: 250px; overflow-y: auto; margin-bottom: 24px; padding-right: 8px;">
-        <div *ngIf="!escursioneSelezionataFeedback?.recensioni || escursioneSelezionataFeedback.recensioni.length === 0" class="no-reviews-msg" style="color: var(--ink-soft); font-style: italic; text-align: center; padding: 20px 0;">
+      <div class="reviews-list-container"
+        style="max-height: 250px; overflow-y: auto; margin-bottom: 24px; padding-right: 8px;">
+        <div *ngIf="!escursioneSelezionataFeedback?.recensioni || escursioneSelezionataFeedback.recensioni.length === 0"
+          class="no-reviews-msg"
+          style="color: var(--ink-soft); font-style: italic; text-align: center; padding: 20px 0;">
           Non ci sono ancora feedback per questa escursione. Sii il primo a scriverne uno!
         </div>
-        
-        <div class="review-item-card" *ngFor="let fb of escursioneSelezionataFeedback?.recensioni" style="background: var(--cream-light); border: 1px solid var(--cream-dark); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px;">
+
+        <div class="review-item-card" *ngFor="let fb of escursioneSelezionataFeedback?.recensioni"
+          style="background: var(--cream-light); border: 1px solid var(--cream-dark); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <span style="font-weight: 700; color: var(--forest-dark); font-size: 0.9rem;">
               👤 {{ fb.usernameTurista }}
@@ -344,17 +362,18 @@
 
       <!-- Form per Nuovo Feedback -->
       <div class="new-review-form" style="border-top: 1px solid var(--cream-dark); padding-top: 20px;">
-        <h6 style="margin-top: 0; margin-bottom: 12px; font-family: var(--font-display); font-size: 1.05rem; color: var(--forest-dark); font-weight: 600;">Condividi la tua Esperienza</h6>
-        
+        <h6
+          style="margin-top: 0; margin-bottom: 12px; font-family: var(--font-display); font-size: 1.05rem; color: var(--forest-dark); font-weight: 600;">
+          Condividi la tua Esperienza</h6>
+
         <div *ngIf="getDatiUtenteDalToken(); else loginRichiesto">
           <form (ngSubmit)="inviaFeedback()">
             <!-- Rating con Stelle Interattive -->
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
               <span style="font-size: 0.85rem; font-weight: 600; color: var(--ink-soft);">Valutazione:</span>
               <div class="stars-selector" style="display: flex; gap: 4px;">
-                <button type="button" *ngFor="let star of [1,2,3,4,5]" 
-                        (click)="selezionaStella(star)" 
-                        style="background: none; border: none; cursor: pointer; padding: 0; font-size: 1.4rem; color: var(--gold); outline: none;">
+                <button type="button" *ngFor="let star of [1,2,3,4,5]" (click)="selezionaStella(star)"
+                  style="background: none; border: none; cursor: pointer; padding: 0; font-size: 1.4rem; color: var(--gold); outline: none;">
                   {{ valutazioneNuovoFeedback >= star ? '★' : '☆' }}
                 </button>
               </div>
@@ -362,17 +381,16 @@
 
             <!-- Area di Testo per Commento -->
             <div style="margin-bottom: 16px;">
-              <label for="commentoNuovoFeedback" style="font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); display: block; margin-bottom: 6px;">Il tuo Commento</label>
-              <textarea
-                id="commentoNuovoFeedback"
-                name="commentoNuovoFeedback"
-                [(ngModel)]="commentoNuovoFeedback"
-                required
-                placeholder="Com'è andato il percorso? La guida è stata chiara? Raccontaci..."
+              <label for="commentoNuovoFeedback"
+                style="font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); display: block; margin-bottom: 6px;">Il
+                tuo Commento</label>
+              <textarea id="commentoNuovoFeedback" name="commentoNuovoFeedback" [(ngModel)]="commentoNuovoFeedback"
+                required placeholder="Com'è andato il percorso? La guida è stata chiara? Raccontaci..."
                 style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--cream-dark); height: 70px; resize: vertical; font-family: inherit; font-size: 0.9rem;"></textarea>
             </div>
 
-            <div *ngIf="erroreFeedback" class="error-banner" style="margin-bottom: 12px; color: #a94442; font-size: 0.85rem;">
+            <div *ngIf="erroreFeedback" class="error-banner"
+              style="margin-bottom: 12px; color: #a94442; font-size: 0.85rem;">
               {{ erroreFeedback }}
             </div>
 
@@ -383,7 +401,8 @@
         </div>
 
         <ng-template #loginRichiesto>
-          <div style="background: rgba(224, 169, 109, 0.15); border: 1px dashed var(--gold); border-radius: var(--radius-sm); padding: 14px; text-align: center; color: var(--forest-dark); font-size: 0.9rem;">
+          <div
+            style="background: rgba(224, 169, 109, 0.15); border: 1px dashed var(--gold); border-radius: var(--radius-sm); padding: 14px; text-align: center; color: var(--forest-dark); font-size: 0.9rem;">
             Devi effettuare il login per scrivere un feedback.
           </div>
         </ng-template>
@@ -396,12 +415,15 @@
     <div class="modal-content" style="max-width: 400px; text-align: center; padding: 28px;">
       <button class="modal-close" (click)="chiudiPopUpNonConclusa()" aria-label="Chiudi">&times;</button>
       <div style="font-size: 3rem; margin-bottom: 14px;">🥾</div>
-      <h5 style="margin-top: 0; margin-bottom: 10px; font-family: var(--font-display); color: var(--forest-dark); font-weight: 700;">Escursione non conclusa</h5>
+      <h5
+        style="margin-top: 0; margin-bottom: 10px; font-family: var(--font-display); color: var(--forest-dark); font-weight: 700;">
+        Escursione non conclusa</h5>
       <p style="font-size: 0.95rem; color: var(--ink-soft); line-height: 1.5; margin: 0 0 20px;">
         Puoi visualizzare e scrivere feedback solo per escursioni che sono state completate.<br>
         Torna a trovarci quando questa escursione sarà terminata!
       </p>
-      <button class="btn-prenota" (click)="chiudiPopUpNonConclusa()" style="padding: 10px 24px; width: auto; display: inline-block;">
+      <button class="btn-prenota" (click)="chiudiPopUpNonConclusa()"
+        style="padding: 10px 24px; width: auto; display: inline-block;">
         Ho Capito
       </button>
     </div>

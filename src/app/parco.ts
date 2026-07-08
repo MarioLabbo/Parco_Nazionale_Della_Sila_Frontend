@@ -35,7 +35,7 @@ export class ParcoService {
           turistaId: turistaId,
           numeroPartecipanti: numeroPartecipanti
         };
-        console.log("📦 Dati in partenza verso Java:", prenotazioneDTO);
+        console.log(" Dati in partenza verso Java:", prenotazioneDTO);
         // Recuperiamo il token salvato
         const token = localStorage.getItem('jwt_token');
 
@@ -89,6 +89,7 @@ export class ParcoService {
     return this.http.put<any>(`${this.baseUrl}/prenotazioni/${prenotazioneId}/conferma?codiceGateway=${codiceGateway}`, {}, { headers: headers });
   }
 
+  // Prende il feedback di una specifica escursione
   getFeedbackEscursione(escursioneId: number): Observable<any[]> {
     const token = localStorage.getItem('jwt_token');
     let headers = new HttpHeaders();
@@ -98,6 +99,7 @@ export class ParcoService {
     return this.http.get<any[]>(`${this.baseUrl}/feedback/escursione/${escursioneId}`, { headers: headers });
   }
 
+  // Scrive il feedback (richiamato da Home)
   scriviFeedback(escursioneId: number, turistaId: number, feedbackData: any): Observable<any> {
     const token = localStorage.getItem('jwt_token');
     let headers = new HttpHeaders();
@@ -105,5 +107,15 @@ export class ParcoService {
       headers = headers.set('Authorization', 'Bearer ' + token);
     }
     return this.http.post<any>(`${this.baseUrl}/feedback/escursione/${escursioneId}/turista/${turistaId}`, feedbackData, { headers: headers });
+  }
+
+  // Annulla un'escursione esistente (riservato a Guide e Admin)
+  annullaEscursione(escursioneId: number): Observable<any> {
+    const token = localStorage.getItem('jwt_token');
+    let headers = new HttpHeaders();
+    if (token) {
+      headers = headers.set('Authorization', 'Bearer ' + token);
+    }
+    return this.http.put<any>(`${this.baseUrl}/escursioni/${escursioneId}/annulla`, {}, { headers: headers });
   }
 }
