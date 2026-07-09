@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ParcoService } from '../parco';
+import { AuthService } from '../auth';
 
 // Comunica a TypeScript che "paypal" è caricato globalmente dall'index.html
 declare var paypal: any;
@@ -42,7 +43,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   commentoNuovoFeedback = '';
   erroreFeedback = '';
 
-  constructor(private parcoService: ParcoService, private cdr: ChangeDetectorRef) { }
+  constructor(
+    private parcoService: ParcoService, 
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     this.caricaDatiDalDatabase();
@@ -86,18 +91,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Estrae il token
   getDatiUtenteDalToken(): any {
-    const token = localStorage.getItem('jwt_token');
-    if (token) {
-      try {
-        const payloadBase64 = token.split('.')[1];
-        const payloadDecodificato = window.atob(payloadBase64);
-        return JSON.parse(payloadDecodificato);
-      } catch (error) {
-        console.error("Errore nella decodifica del token", error);
-        return null;
-      }
-    }
-    return null;
+    return this.authService.getDatiUtente();
   }
 
   // Metodo che esegue la prenotazione
@@ -378,10 +372,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   annullaEscursione(escursioneId: number): void {
-    if (confirm('Sei sicuro di voler annullare questa escursione? Tutti i clienti prenotati verranno rimborsati e notificati via email.')) {
+    if (confirm('Sei sicuro di voler annullare questa escursione? Tutti i clienti prenotati verranno notificati via email.')) {
       this.parcoService.annullaEscursione(escursioneId).subscribe({
         next: (risposta) => {
-          alert('Escursione annullata con successo. I clienti sono stati rimborsati e avvisati via email.');
+          alert('Escursione annullata con successo. I clienti sono stati avvisati via email.');
           this.caricaDatiDalDatabase();
         },
         error: (err) => {

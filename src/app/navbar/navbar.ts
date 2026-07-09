@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ParcoService } from '../parco';
+import { AuthService } from '../auth';
 
 @Component({
   selector: 'app-navbar',
@@ -12,25 +13,24 @@ export class NavbarComponent {
 
   usernameDaPromuovere = '';
 
-  constructor(private router: Router, private parcoService: ParcoService) {}
+  constructor(private router: Router, private parcoService: ParcoService, private authService: AuthService ) {}
 
   // Controlla se il token esiste
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('jwt_token');
-  }
+   isLoggedIn(): boolean {
+      return this.authService.isLogged();
+    }
 
   // Recupera il ruolo salvato per eventuali messaggi personalizzati
   getRuolo(): string | null {
-    return localStorage.getItem('user_role');
+    return this.authService.getRuolo();
   }
 
   // Funzione di Logout: svuota le tasche del browser e rispedisce al login
-  logout() {
-    localStorage.removeItem('jwt_token');
-    localStorage.removeItem('user_role');
-    console.log('Sessione terminata. Arrivederci!');
-    this.router.navigate(['/login']);
-  }
+   logout() {
+      this.authService.logout();
+      console.log('Sessione terminata. Arrivederci!');
+      this.router.navigate(['/login']);
+    }
 
   // Avvia il flusso per cercare un utente e promuoverlo a GUIDA (riservato agli amministratori)
   promuoviUtente(): void {

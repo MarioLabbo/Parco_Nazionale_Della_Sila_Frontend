@@ -33,6 +33,27 @@ export class AuthService {
     return localStorage.getItem('jwt_token') !== null;
   }
 
+  // Metodo per estrarre e decodificare il token
+  getDatiUtente(): any {
+    const token = localStorage.getItem('jwt_token');
+    if (token) {
+      try {
+        const payloadBase64 = token.split('.')[1];
+        const payloadDecodificato = window.atob(payloadBase64);
+        return JSON.parse(payloadDecodificato);
+      } catch (error) {
+        console.error("Errore nella decodifica del token", error);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  // Metodo per ottenere il ruolo salvato dell'utente
+  getRuolo(): string | null {
+    return localStorage.getItem('user_role');
+  }
+
   // Metodo per fare il logout
   logout() {
     localStorage.removeItem('jwt_token');
